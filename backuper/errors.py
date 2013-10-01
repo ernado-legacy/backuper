@@ -2,5 +2,6 @@
 class BackupException(Exception):
     pass
 
+
 class ProjectException(BackupException):
     pass

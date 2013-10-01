@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-from exceptions import BackupException, ProjectException
+from errors import BackupException, ProjectException
 
 from config import get_config
 

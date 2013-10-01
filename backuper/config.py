@@ -2,7 +2,7 @@
 import os
 import ConfigParser
 
-from exceptions import BackupException
+from errors import BackupException
 
 NAME = 'backuper'
 
