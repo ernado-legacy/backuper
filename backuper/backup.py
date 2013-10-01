@@ -6,7 +6,7 @@ import shutil
 from errors import BackupException, ProjectException
 from config import get_config
 from database import dump
-from archivator import incremental_compress
+from archivator import incremental_compress, compress
 import log
 
 
@@ -97,35 +97,31 @@ class Backuper(object):
         now = datetime.datetime.now()
         self._logger.info('Starting %s backup of %s' % (self._backup_type, self.project))
         index = get_current_index(self.project.title)
-        output_file = '%s.tar' % index
         backups_folder = self._config.get('backuper', 'backups')
         if not os.path.exists(backups_folder):
             self._logger.info('Creating folder %s for all backups' % backups_folder)
             os.mkdir(backups_folder)
 
         current_backup_folder = os.path.join(backups_folder, index)
+        output_file = os.path.join(backups_folder, '%s.tar' % index)
+        output_media_file = os.path.join(current_backup_folder, 'media.tar')
 
         if not os.path.exists(current_backup_folder):
             self._logger.info('Creating folder %s for current backup' % current_backup_folder)
             os.mkdir(current_backup_folder)
 
-#        self._logger.info('Coping media files')
-#        shutil.copytree(self.project.media_folder, current_backup_folder)
+        #        self._logger.info('Coping media files')
+        #        shutil.copytree(self.project.media_folder, current_backup_folder)
 
         dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
 
         incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, now.month, now.year)
         incremental_file = os.path.join(backups_folder, incremental_file)
-        incremental_compress(self.project.media_folder, output_file, incremental_file)
+        incremental_compress(self.project.media_folder, output_media_file, incremental_file)
 
-
-        if self._backup_type == TYPES.monthly:
-            # Create full backup
-            pass
-        else:
-            # Incremental backup
-            pass
+        self._logger('Compressing all to file')
+        compress(current_backup_folder, output_file)
 
         #shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         os.remove(incremental_file)
