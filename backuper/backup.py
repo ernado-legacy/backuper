@@ -120,7 +120,7 @@ class Backuper(object):
         incremental_file = os.path.join(backups_folder, incremental_file)
         incremental_compress(self.project.media_folder, output_media_file, incremental_file)
 
-        self._logger('Compressing all to file')
+        self._logger.info('Compressing all to file')
         compress(current_backup_folder, output_file)
 
         #shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
