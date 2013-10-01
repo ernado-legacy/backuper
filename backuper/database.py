@@ -88,7 +88,7 @@ def generate_pgpass():
 
 
 if __name__ == '__main__':
-    settings = generate_pgpass()
+    logger = log.get(__name__)
     for project in generate_pgpass():
         dump(project)
     dump_all()
