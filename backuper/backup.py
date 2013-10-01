@@ -80,7 +80,7 @@ class Backuper(object):
         if b_type is None:
             b_type = get_backup_type()
 
-        if b_type in TYPES:
+        if b_type in (TYPES.daily, TYPES.monthly):
             self._backup_type = b_type
         else:
             raise ValueError("Unknown backup type %s" % b_type)
