@@ -36,7 +36,7 @@ def get_backup_index(project, day, month, year=None):
 
     t = get_backup_type(day)[0]
 
-    return '{project}-{t}{d:0>2}{m:0>2}{y}'.format(project=project,
+    return '{project}-{t}-{d:0>2}-{m:0>2}{y}'.format(project=project,
                                                       t=t,
                                                       d=day,
                                                       m=month,
