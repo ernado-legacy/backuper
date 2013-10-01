@@ -6,6 +6,7 @@ import shutil
 from errors import BackupException, ProjectException
 from config import get_config
 from database import dump
+from archivator import incremental_compress
 import log
 
 
@@ -93,8 +94,10 @@ class Backuper(object):
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
 
     def backup(self):
+        now = datetime.datetime.now()
         self._logger.info('Starting %s backup of %s' % (self._backup_type, self.project))
         index = get_current_index(self.project.title)
+        output_file = '%s.tar' % index
         backups_folder = self._config.get('backuper', 'backups')
         if not os.path.exists(backups_folder):
             self._logger.info('Creating folder %s for all backups' % backups_folder)
@@ -112,11 +115,15 @@ class Backuper(object):
         dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
 
+        incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, now.month, now.year)
+        incremental_compress(self.project.media_folder, output_file, incremental_file)
+
 
         if self._backup_type == TYPES.monthly:
-            # Create incremental file
+            # Create full backup
             pass
         else:
+            # Incremental backup
             pass
 
 if __name__ == '__main__':
