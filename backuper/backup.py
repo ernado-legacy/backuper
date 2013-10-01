@@ -123,6 +123,8 @@ class Backuper(object):
         self._logger.info('Compressing all to file')
         compress(current_backup_folder, output_file)
 
+        self._logger.info('Removing temporary files')
+        shutil.rmtree(current_backup_folder)
         #shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         os.remove(incremental_file)
         self._logger.info('Completed')
