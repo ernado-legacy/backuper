@@ -109,7 +109,7 @@ class Backuper(object):
 #        self._logger.info('Coping media files')
 #        shutil.copytree(self.project.media_folder, current_backup_folder)
 
-        dump_file = os.path.join(current_backup_folder, '%.dump' % self.project)
+        dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
 
 
