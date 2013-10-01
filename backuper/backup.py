@@ -1,16 +1,8 @@
 # coding=utf-8
-import sys
 import os
+from exceptions import BackupException, ProjectException
 
 from config import get_config
-
-
-class BackupException(Exception):
-    pass
-
-
-class ProjectException(BackupException):
-    pass
 
 
 class backup_types(object):

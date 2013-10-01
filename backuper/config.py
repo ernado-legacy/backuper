@@ -1,7 +1,7 @@
 # coding=utf-8
 import os
-from backup import BackupException
 import ConfigParser
+from exceptions import BackupException
 
 NAME = 'backuper'
 
