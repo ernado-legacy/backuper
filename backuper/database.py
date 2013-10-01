@@ -18,7 +18,7 @@ command_string = 'pg_dump -U pg_{name} db_{name}'
 def dump(project_name, dump_file=None):
     """
     Dump database of project
-    @type dump_file: file
+    @type dump_file: FileIO
     @param project_name: name of project's folder
     @param dump_file: output file
     @type project_name: str
@@ -38,7 +38,6 @@ def dump(project_name, dump_file=None):
 def dump_all(dump_file=None):
     """
     Full dump
-    @type dump_file: file
     @param dump_file: output file
     """
 

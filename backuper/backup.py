@@ -1,9 +1,11 @@
 # coding=utf-8
 import os
 import datetime
+import shutil
 
 from errors import BackupException, ProjectException
 from config import get_config
+from database import dump
 import log
 
 
@@ -103,6 +105,19 @@ class Backuper(object):
         if not os.path.exists(current_backup_folder):
             self._logger.info('Creating folder %s for current backup' % current_backup_folder)
             os.mkdir(current_backup_folder)
+
+#        self._logger.info('Coping media files')
+#        shutil.copytree(self.project.media_folder, current_backup_folder)
+
+        dump_file = os.path.join(current_backup_folder, '%.dump' % self.project)
+        dump(self.project.title, open(dump_file, 'w'))
+
+
+        if self._backup_type == TYPES.monthly:
+            # Create incremental file
+            pass
+        else:
+            pass
 
 if __name__ == '__main__':
     b = Backuper('machines')
