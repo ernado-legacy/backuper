@@ -50,3 +50,4 @@ if __name__ == '__main__':
     settings = generate_pgpass()
     if settings:
         dump('machines')
+        dump('store')
