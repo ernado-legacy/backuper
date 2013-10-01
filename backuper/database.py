@@ -13,23 +13,27 @@ command_format = 'pg_dump -U pg_{name} db_{name}'
 
 def dump(project_name, dump_file=None):
     logger.info('Dumping %s database' % project_name)
+
     command = command_format.format(name=project_name)
     if dump_file is None:
         dump_file = open('db_%s.dump' % project_name, 'w')
     p = subprocess.Popen(command, shell=True, stdout=dump_file)
     p.wait()
     dump_file.close()
+
     logger.info('Dump for %s finished' % project_name)
 
 
 def dump_all(dump_file=None):
     command = 'pg_dumpall'
     logger.info('Starting full dump')
+
     if dump_file is None:
         dump_file = open('full.dump', 'w')
     p = subprocess.Popen(command, shell=True, stdout=dump_file)
     p.wait()
     dump_file.close()
+
     logger.info('Full dump finished')
 
 
@@ -47,7 +51,7 @@ def generate_pgpass():
             parser.read(os.path.join(projects_folder, project_name, 'conf', 'backuper.conf'))
             password = parser.get('backuper', 'password')
         except (NoSectionError, IOError), e:
-            logger.error('Failed to process %s: %s' % (project_name, e))
+            logger.warning('Failed to process %s: %s' % (project_name, e))
             continue
         pgpass_strings.append(password_format.format(key=password, name=project_name))
 
@@ -56,6 +60,7 @@ def generate_pgpass():
 
     logger.info('Pgpass file generated. Processed projects: %s' % len(pgpass_strings))
     return pgpass_strings
+
 
 if __name__ == '__main__':
     settings = generate_pgpass()
