@@ -16,7 +16,8 @@ def get_config():
         try:
             with open(filename) as source:
                 config.readfp(source)
+                logger.info('Loading config %s' % filename)
                 return config
         except IOError:
-            logger.info('File %s not found' % filename)
+            logger.debug('File %s not found' % filename)
     raise BackupException('Unable to find configuration file')
