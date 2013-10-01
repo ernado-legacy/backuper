@@ -54,7 +54,7 @@ def generate_pgpass():
     with open(os.path.join(user_root, '.pgpass'), 'w') as pgpass_file:
         pgpass_file.writelines(pgpass_strings)
 
-    logger.info('Processed database password lines: %s' % len(pgpass_strings))
+    logger.info('Pgpass file generated. Processed projects: %s' % len(pgpass_strings))
     return pgpass_strings
 
 if __name__ == '__main__':
