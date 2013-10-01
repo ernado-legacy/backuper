@@ -6,7 +6,7 @@ import shutil
 from errors import BackupException, ProjectException
 from config import get_config
 from database import dump
-from archivator import incremental_compress, compress
+from archivator import incremental_compress, compress, compress_file
 import log
 
 
@@ -115,6 +115,10 @@ class Backuper(object):
 
         dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
+
+        self._logger.info('Compressing database')
+        compress_file(dump_file, '%s.tar.gz' % dump_file)
+        os.remove(dump_file)
 
         incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, now.month, now.year)
         incremental_file = os.path.join(backups_folder, incremental_file)
