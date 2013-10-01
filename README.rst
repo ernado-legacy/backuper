@@ -24,4 +24,5 @@ Quick start
 3. Grant read/write rights on project and backup folder::
 
    adduser backuper sudo
-
+   chgrp -R sudo <folder>
+   ...
