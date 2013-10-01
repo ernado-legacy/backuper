@@ -115,7 +115,8 @@ class Backuper(object):
         dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
 
-        incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, now.month, now.year)
+        incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, now.month, now.year)
+        incremental_file = os.path.join(backups_folder, incremental_file)
         incremental_compress(self.project.media_folder, output_file, incremental_file)
 
 
@@ -126,6 +127,9 @@ class Backuper(object):
             # Incremental backup
             pass
 
+        #shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
+        os.remove(incremental_file)
+        self._logger.info('Completed')
 if __name__ == '__main__':
     b = Backuper('machines')
     b.backup()
