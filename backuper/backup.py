@@ -129,5 +129,5 @@ class Backuper(object):
         os.remove(incremental_file)
         self._logger.info('Completed')
 if __name__ == '__main__':
-    b = Backuper('machines')
-    b.backup()
+    for project in ['machines', 'store']:
+        Backuper(project).backup()
