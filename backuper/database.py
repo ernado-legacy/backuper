@@ -19,7 +19,18 @@ def dump(project_name, dump_file=None):
     p = subprocess.Popen(command, shell=True, stdout=dump_file)
     p.wait()
     dump_file.close()
-    logger.info('Dump finished')
+    logger.info('Dump for %s finished' % project_name)
+
+
+def dump_all(dump_file=None):
+    command = 'pg_dumpall'
+    logger.info('Starting full dump')
+    if dump_file is None:
+        dump_file = open('full.dump', 'w')
+    p = subprocess.Popen(command, shell=True, stdout=dump_file)
+    p.wait()
+    dump_file.close()
+    logger.info('Full dump finished')
 
 
 def generate_pgpass():
@@ -51,3 +62,5 @@ if __name__ == '__main__':
     if settings:
         dump('machines')
         dump('store')
+        dump('discover')
+    dump_all()
