@@ -65,8 +65,8 @@ class Project(object):
         self.media_folder = os.path.join(self.folder, 'media')
         if not os.path.isdir(self.media_folder):
             raise ProjectException('Media folder %s does not exist for project %s' % (self.media_folder, project_title))
-        self.db_name = 'db_%s' % project_title
-        self.filename = '%s.tar' % get_backup_index(project_title, None, None)
+        #self.db_name = 'db_%s' % project_title
+        #self.filename = '%s.tar' % get_backup_index(project_title, None, None)
 
     def __str__(self):
         return self.title
