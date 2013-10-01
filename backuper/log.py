@@ -9,6 +9,6 @@ __ch.setFormatter(__formatter)
 
 def get(name):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(__ch)
     return logger
