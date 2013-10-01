@@ -62,5 +62,5 @@ if __name__ == '__main__':
     if settings:
         dump('machines')
         dump('store')
-        dump('discover')
+        #dump('discover')
     dump_all()
