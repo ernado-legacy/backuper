@@ -7,7 +7,7 @@ from config import get_config
 import log
 
 logger = log.get(__name__)
-password_format = 'localhost:5432:db_{name}:pg_{name}:{key}'
+password_format = 'localhost:5432:db_{name}:pg_{name}:{key}\n'
 command_format = 'pg_dump -U pg_{name} db_{name}'
 
 
