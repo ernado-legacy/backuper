@@ -50,7 +50,7 @@ def compress(input_folder, output_file, zip=False):
     #tar.close()
     tar_call_arguments = ['tar', '--create', '--verbose',
                           '--preserve-permissions', '--ignore-failed-read',
-                          '--totals', '-cC']
+                          '--totals']
 
     logger.info('Archiving to %s' % output_file)
     result = call(tar_call_arguments + ['--file=%s' % output_file, input_folder])
@@ -62,7 +62,7 @@ def incremental_compress(input_folder, output_file, incremental_list_file):
     logger = log.get(__name__)
     tar_call_arguments = ['tar', '--create', '--verbose',
                           '--preserve-permissions', '--ignore-failed-read',
-                          '--recursion', '--totals', '-cC']
+                          '--recursion', '--totals']
 
     start_time = datetime.now()
     logger.info('Archiving to %s' % output_file)
