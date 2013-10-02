@@ -141,6 +141,10 @@ class Backuper(object):
         self.log.info('Collecting media files')
         old_incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
         old_incremental_file = os.path.join(b_folder, old_incremental_file)
+
+        if not os.path.isfile(old_incremental_file):
+            open(old_incremental_file, 'w').close()
+
         incremental_file = old_incremental_file.replace('.inc', '.new.inc')
 
         shutil.copy(old_incremental_file, incremental_file)
