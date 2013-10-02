@@ -55,7 +55,10 @@ def get_backup_index(project_name, day, month, year=None, b_type=None):
 
 def get_current_index(project_name, b_type=None):
     now = datetime.datetime.now()
-    return get_backup_index(project_name, now.day, now.month, now.year, b_type)
+    day = now.day
+    if b_type == TYPES.monthly:
+        day = 1
+    return get_backup_index(project_name, day, now.month, now.year, b_type)
 
 
 def get_backup_type(day=None):
@@ -173,7 +176,13 @@ if __name__ == '__main__':
         b_type = None
         if len(sys.argv) > 3:
             b_type = sys.argv[3]
-        b = Backuper(project, b_type)
-        b.backup()
+            for t in (TYPES.monthly, TYPES.daily):
+                if t[0] == b_type[0] or t == b_type:
+                    b_type = t
+        if b_type is not None and b_type not in (TYPES.monthly, TYPES.daily):
+            b = Backuper(project, b_type)
+            b.backup()
+        else:
+            print 'Incorrect backup type'
     else:
         print 'Not implemented'
