@@ -34,27 +34,20 @@ def compress(input_folder, output_file, zip=False):
     @param output_file: output tar file
     @param zip: compress flag
     """
-    mode = 'w'
     logger = log.get(__name__)
+    start_time = datetime.now()
     logger.info('Starting compression of the folder %s' % input_folder)
-    #if not os.path.isdir(input_folder):
-    #    raise IOError('%s is not folder or folder not found' % input_folder)
-    #if zip:
-    #    mode = 'w:gz'
-    #tar = tarfile.open(output_file, mode)
-    #for name in os.listdir(input_folder):
-    #    full_name = os.path.join(name, output_file)
-    #    logger.info('Archiving file %s' % name)
-    #    if os.path.isfile(full_name):
-    #        tar.add(full_name)
-    #tar.close()
     tar_call_arguments = ['tar', '--create', '--verbose',
                           '--preserve-permissions', '--ignore-failed-read',
                           '--totals']
 
     logger.info('Archiving to %s' % output_file)
     result = call(tar_call_arguments + ['--file=%s' % output_file, input_folder])
-
+    if result == 0:
+        logger.info('Archiving completed by %s seconds' % (datetime.now() - start_time).seconds)
+    else:
+        logger.critical('Failed to archive %s' % input_folder)
+        raise errors.BackupException('Archiving failed')
     logger.info('Folder %s compressed to file %s' % (input_folder, output_file))
 
 

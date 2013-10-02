@@ -7,6 +7,7 @@ from errors import BackupException, ProjectException
 from config import get_config
 from database import dump, dump_all, generate_pgpass
 from archivator import incremental_compress, compress, compress_file
+from reports import send
 import log
 
 
@@ -110,9 +111,6 @@ class Backuper(object):
             self._logger.info('Creating folder %s for current backup' % current_backup_folder)
             os.mkdir(current_backup_folder)
 
-        #        self._logger.info('Coping media files')
-        #        shutil.copytree(self.project.media_folder, current_backup_folder)
-
         dump_file = os.path.join(current_backup_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file, 'w'))
 
@@ -130,8 +128,10 @@ class Backuper(object):
         self._logger.info('Removing temporary files')
         shutil.rmtree(current_backup_folder)
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
-        #os.remove(incremental_file)
+        self._logger.info('Reporting')
+        send('Completed: %s' % self.project.title, 'Hello World', cfg=self._config)
         self._logger.info('Completed')
+
 if __name__ == '__main__':
     generate_pgpass()
     for project in ['machines', 'store']:
