@@ -27,7 +27,7 @@ class TYPES(object):
         return False
 
 
-def get_backup_index(project_name, day, month, year=None):
+def get_backup_index(project_name, day, month, year=None, b_type=None):
     """
     @param project_name: Name of the project
     @return: backup unique index
@@ -40,7 +40,10 @@ def get_backup_index(project_name, day, month, year=None):
     if year is None:
         year = datetime.datetime.now().year
 
-    t = get_backup_type(day)[0]
+    if b_type is not None and b_type in (TYPES.daily, TYPES.monthly):
+        t = b_type
+    else:
+        t = get_backup_type(day)[0]
 
     return '{project}-{t}-{d:0>2}-{m:0>2}-{y}'.format(project=project_name,
                                                       t=t,
@@ -49,9 +52,9 @@ def get_backup_index(project_name, day, month, year=None):
                                                       y=str(year)[-2:])
 
 
-def get_current_index(project_name):
+def get_current_index(project_name, b_type=None):
     now = datetime.datetime.now()
-    return get_backup_index(project_name, now.day, now.month, now.year)
+    return get_backup_index(project_name, now.day, now.month, now.year, b_type)
 
 
 def get_backup_type(day=None):
@@ -94,7 +97,7 @@ class Backuper(object):
             self.project = Project(project_title, projects_folder)
         except ProjectException as e:
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
-        self.b_index = get_current_index(self.project.title)
+        self.b_index = get_current_index(self.project.title, b_type)
         b_folder = self.cfg.get('backuper', 'backups')
         self.log_filename = os.path.join(b_folder, '%s-backup.log.txt' % self.b_index)
         open(self.log_filename, 'w').close()
