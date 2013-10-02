@@ -64,7 +64,7 @@ def send(subject, text, files=None, cfg=None):
 
     try:
         logger.info('Starting smtp connection')
-        smtp = smtplib.SMTP(cfg.get('email', 'server'))
+        smtp = smtplib.SMTP(cfg.get('email', 'host'))
         logger.info('Sending message...')
         smtp.sendmail(cfg.get('email', 'from'), cfg.get('email', 'to'), message)
         logger.info('Message sent')
