@@ -133,5 +133,5 @@ class Backuper(object):
         #os.remove(incremental_file)
         self._logger.info('Completed')
 if __name__ == '__main__':
-    for project in ['machines', 'store']:
+    for project in ['machines', 'store', 'discover']:
         Backuper(project).backup()
