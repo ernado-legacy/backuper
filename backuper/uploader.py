@@ -31,7 +31,7 @@ def upload_files(file_list, cfg, logger):
         ftp = FTP(cfg.get('ftp', 'host'), cfg.get('ftp', 'user'), cfg.get('ftp', 'password'))
         logger.info('Connected, starting upload')
         map(lambda filename: ftp.storbinary('STOR %s' % uploads[filename], open(filename)), uploads.keys())
-        elapsed_seconds = (datetime.now() - start_time).second
+        elapsed_seconds = (datetime.now() - start_time).seconds
         logger.info('Uploaded by %s seconds, speed: %s/s' % (elapsed_seconds, format_size(total_size/elapsed_seconds)))
         ftp.close()
     except ftp_all_errors as e:
