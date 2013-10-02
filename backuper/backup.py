@@ -42,7 +42,7 @@ def get_backup_index(project_name, day, month, year=None, b_type=None):
         year = datetime.datetime.now().year
 
     if b_type is not None and b_type in (TYPES.daily, TYPES.monthly):
-        t = b_type
+        t = b_type[0]
     else:
         t = get_backup_type(day)[0]
 
@@ -167,7 +167,6 @@ if __name__ == '__main__':
         print 'Usage: backuper.py <project_name> backup <?m/d>'
         print 'or: backuper.py <project_name> restore <dd.mm(?.yy)>'
     generate_pgpass()
-    print sys.argv
     project = sys.argv[1]
     b_mode = sys.argv[2]
     if b_mode == 'backup':
