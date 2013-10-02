@@ -69,7 +69,7 @@ def send(subject, text, files=None, cfg=None):
         smtp.starttls()
         smtp.login(cfg.get('email', 'from'), cfg.get('email', 'password'))
         logger.info('Sending message...')
-        smtp.sendmail(cfg.get('email', 'from'), cfg.get('email', 'to'), message)
+        smtp.sendmail(cfg.get('email', 'from'), cfg.get('email', 'to'), message.as_string())
         logger.info('Message sent')
         smtp.close()
     except (smtplib.SMTPException, smtplib.SMTPResponseException), e:
