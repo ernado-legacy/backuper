@@ -29,6 +29,8 @@ def compress_file(input_file, output_file):
 def compress(input_folder, output_file, log_file):
     """
     Compressing folder to file
+    @type log_file: FileIO
+    @type output_file: str
     @param input_folder: Folder to compress
     @param output_file: output tar file
     """
@@ -50,6 +52,16 @@ def compress(input_folder, output_file, log_file):
 
 
 def incremental_compress(input_folder, output_file, log_file, incremental_list_file):
+    """
+    Incrementally compress folder
+    @type incremental_list_file: str
+    @type log_file: FileIO
+    @param input_folder:
+    @param output_file:
+    @param log_file:
+    @param incremental_list_file:
+    @raise errors.BackupException:
+    """
     logger = log.get(__name__)
     tar_call_arguments = ['tar', '--create', '--verbose',
                           '--preserve-permissions', '--ignore-failed-read',
