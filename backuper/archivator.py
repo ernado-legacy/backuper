@@ -43,9 +43,10 @@ def compress(input_folder, output_file, zip=False):
         mode = 'w:gz'
     tar = tarfile.open(output_file, mode)
     for name in os.listdir(input_folder):
+        full_name = os.path.join(name, output_file)
         logger.info('Archiving file %s' % name)
-        if os.path.isfile(name):
-            tar.add(name)
+        if os.path.isfile(full_name):
+            tar.add(full_name)
     tar.close()
     logger.info('Folder %s compressed to file %s' % (input_folder, output_file))
 
