@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='backuper',
-    version='0.4.4a',
+    version='1.0.0b',
     packages=['backuper',],
     include_package_data=True,
     license='BSD License',  # example license
