@@ -3,13 +3,13 @@ import os
 import datetime
 import shutil
 import logging
+import codecs
 
 from errors import BackupException, ProjectException
 from config import get_config
 from database import dump, dump_all, generate_pgpass
 from archivator import incremental_compress, compress, compress_file
 from reports import send
-import log
 
 
 class TYPES(object):
@@ -77,7 +77,7 @@ class Project(object):
 
 class Backuper(object):
     def __init__(self, project_title, b_type=None):
-        self.log = log.get(__name__)
+        self.log = logging.getLogger(__name__)
         self.cfg = get_config(self.log)
 
         if b_type is None:
@@ -93,6 +93,7 @@ class Backuper(object):
         except ProjectException as e:
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
         self.b_index = get_current_index(self.project.title)
+        self.log_filename = '%s-backup.log.txt' % self.b_index
         self.initiate_loggers()
 
     def backup(self):
@@ -101,6 +102,7 @@ class Backuper(object):
 
         b_folder = self.cfg.get('backuper', 'backups')
         b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
+        b_compress_log_f = codecs.open(b_compress_log, 'w', 'utf-8')
 
         if not os.path.exists(b_folder):
             self.log.info('Creating folder %s for all backups' % b_folder)
@@ -123,27 +125,27 @@ class Backuper(object):
 
         incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
         incremental_file = os.path.join(b_folder, incremental_file)
-        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file, b_compress_log)
+        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file, b_compress_log_f)
 
         self.log.info('Compressing all to file')
-        compress(current_folder, output_tarfile, b_compress_log)
+        compress(current_folder, output_tarfile, b_compress_log_f)
+        b_compress_log_f.close()
 
         self.log.info('Removing temporary files')
         shutil.rmtree(current_folder)
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
-        self.log.info('Reporting')
-        send('Completed: %s' % self.project.title, 'Hello World', cfg=self.cfg, files=[b_compress_log])
         self.log.info('Completed')
+        log_info = open(self.log_filename).read()
+        send('Completed: %s' % self.project.title, log_info, cfg=self.cfg, files=[b_compress_log])
 
     def initiate_loggers(self):
-        __ch = logging.StreamHandler()
-        __ch.setLevel(logging.INFO)
-        __formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
-        __ch.setFormatter(__formatter)
-        self.log.setLevel(logging.INFO)
-        self.log.addHandler(__ch)
-        handler = logging.FileHandler('%s-backup.log.txt' % self.b_index)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
+        stream_handler.setFormatter(formatter)
+        self.log.setLevel(logging.INFO)
+        self.log.addHandler(stream_handler)
+        handler = logging.FileHandler(self.log_filename)
         handler.setFormatter(formatter)
         handler.setLevel(logging.INFO)
         self.log.addHandler(handler)

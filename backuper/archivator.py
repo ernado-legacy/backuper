@@ -34,14 +34,13 @@ def compress(input_folder, output_file, log_file):
     """
     logger = log.get(__name__)
     start_time = datetime.now()
-    log_f = codecs.open(log_file, 'a', 'utf-8')
     logger.info('Starting compression of the folder %s' % input_folder)
     tar_call_arguments = ['tar', '--create', '--verbose',
                           '--preserve-permissions', '--ignore-failed-read',
                           '--totals']
 
     logger.info('Archiving to %s' % output_file)
-    result = call(tar_call_arguments + ['--file=%s' % output_file, input_folder], stdout=log_f, stderr=log_f)
+    result = call(tar_call_arguments + ['--file=%s' % output_file, input_folder], stdout=log_file, stderr=log_file)
     if result == 0:
         logger.info('Archiving completed by %s seconds' % (datetime.now() - start_time).seconds)
     else:
@@ -58,11 +57,11 @@ def incremental_compress(input_folder, output_file, log_file, incremental_list_f
 
     start_time = datetime.now()
     logger.info('Archiving to %s' % output_file)
-    log_f = codecs.open(log_file, 'a', 'utf-8')
+
     result = call(tar_call_arguments + ['--listed-incremental=%s' % incremental_list_file,
                                         '--file=%s' % output_file, input_folder],
-                  stdout=log_f,
-                  stderr=log_f)
+                  stdout=log_file,
+                  stderr=log_file)
     if result == 0:
         logger.info('Archiving completed by %s seconds' % (datetime.now() - start_time).seconds)
     else:
