@@ -75,7 +75,7 @@ def incremental_compress(input_folder, output_file, incremental_list_file, log_f
     result = call(tar_call_arguments + ['--listed-incremental=%s' % incremental_list_file,
                                         '--file=%s' % output_file,
                                         input_folder],
-                  tdout=log_file,
+                  stdout=log_file,
                   stderr=log_file)
     if result == 0:
         logger.info('Archiving completed by %s seconds' % (datetime.now() - start_time).seconds)
