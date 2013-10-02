@@ -145,7 +145,7 @@ class Backuper(object):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
         stream_handler.setFormatter(formatter)
         self.log.setLevel(logging.INFO)
-        self.log.addHandler(stream_handler)
+        #self.log.addHandler(stream_handler)
         handler = logging.FileHandler(self.log_filename)
         handler.setFormatter(formatter)
         handler.setLevel(logging.INFO)
