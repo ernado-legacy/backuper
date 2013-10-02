@@ -153,6 +153,7 @@ class Backuper(object):
         self.file_handler.close()
         log_info = open(self.log_filename).read()
         send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
+        exit(0)
 
     def initiate_loggers(self):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
