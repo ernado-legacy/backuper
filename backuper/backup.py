@@ -8,7 +8,7 @@ import sys
 
 from errors import BackupException, ProjectException
 from config import get_config
-from database import dump, dump_all, generate_pgpass
+from database import dump, generate_pgpass
 from uploader import upload_files
 from archivator import incremental_compress, compress, compress_file
 from reports import send
@@ -89,6 +89,9 @@ class Backuper(object):
         self.log = logging.getLogger(__name__)
         self.cfg = get_config(self.log)
         self.file_handler = None
+        self.current_folder = ''
+        self.output_tarfile = ''
+        self.b_compress_log_f = None
 
         if b_type is None:
             b_type = get_backup_type()
@@ -103,32 +106,31 @@ class Backuper(object):
         except ProjectException as e:
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
         self.b_index = get_current_index(self.project.title, b_type)
-        b_folder = self.cfg.get('backuper', 'backups')
-        self.log_filename = os.path.join(b_folder, '%s-backup.log.txt' % self.b_index)
+        self.b_folder = self.cfg.get('backuper', 'backups')
+        self.log_filename = os.path.join(self.b_folder, '%s-backup.log.txt' % self.b_index)
         open(self.log_filename, 'w').close()
+        self.b_time = datetime.datetime.now()
         self.initiate_loggers()
 
-    def backup(self):
-        b_time = datetime.datetime.now()
-        self.log.info('Starting %s backup of %s' % (self.b_type, self.project))
+    def compress_media(self):
+        self.log.info('Collecting media files')
+        output_media_tarfile = os.path.join(self.current_folder, 'media.tar')
+        old_incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, self.b_time.month, self.b_time.year)
+        old_incremental_file = os.path.join(self.b_folder, old_incremental_file)
 
-        b_folder = self.cfg.get('backuper', 'backups')
-        b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
-        b_compress_log_f = codecs.open(b_compress_log, 'w', 'utf-8')
+        if not os.path.isfile(old_incremental_file):
+            open(old_incremental_file, 'w').close()
 
-        if not os.path.exists(b_folder):
-            self.log.info('Creating folder %s for all backups' % b_folder)
-            os.mkdir(b_folder)
+        incremental_file = old_incremental_file.replace('.inc', '.new.inc')
 
-        current_folder = os.path.join(b_folder, self.b_index)
-        output_tarfile = os.path.join(b_folder, '%s.tar' % self.b_index)
-        output_media_tarfile = os.path.join(current_folder, 'media.tar')
+        shutil.copy(old_incremental_file, incremental_file)
+        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file,
+                             self.b_compress_log_f, self.log)
+        self.log.info('Incremental media files archive size: %s' % get_size(output_media_tarfile))
+        shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
 
-        if not os.path.exists(current_folder):
-            self.log.info('Creating folder %s for current backup' % current_folder)
-            os.mkdir(current_folder)
-
-        dump_file_path = os.path.join(current_folder, '%s.dump' % self.project)
+    def dump_database(self):
+        dump_file_path = os.path.join(self.current_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file_path, 'w'), self.log)
         self.log.info('Dumped to %s' % get_size(dump_file_path))
 
@@ -138,30 +140,40 @@ class Backuper(object):
         os.remove(dump_file_path)
         self.log.info('Compressed to %s' % get_size(dump_tarfile_path))
 
-        self.log.info('Collecting media files')
-        old_incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
-        old_incremental_file = os.path.join(b_folder, old_incremental_file)
+    def upload(self):
+        self.log.info('Uploading to ftp server')
+        upload_files([self.output_tarfile], self.cfg, self.log)
+        self.log.info('Completed')
 
-        if not os.path.isfile(old_incremental_file):
-            open(old_incremental_file, 'w').close()
+    def backup(self):
+        self.log.info('Starting %s backup of %s' % (self.b_type, self.project))
 
-        incremental_file = old_incremental_file.replace('.inc', '.new.inc')
+        b_folder = self.cfg.get('backuper', 'backups')
+        b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
+        self.b_compress_log_f = codecs.open(b_compress_log, 'w', 'utf-8')
 
-        shutil.copy(old_incremental_file, incremental_file)
-        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file,
-                             b_compress_log_f, self.log)
-        self.log.info('Incremental media files archive size: %s' % get_size(output_media_tarfile))
+        if not os.path.exists(b_folder):
+            self.log.info('Creating folder %s for all backups' % b_folder)
+            os.mkdir(b_folder)
+
+        self.current_folder = os.path.join(b_folder, self.b_index)
+        self.output_tarfile = os.path.join(b_folder, '%s.tar' % self.b_index)
+
+        if not os.path.exists(self.current_folder):
+            self.log.info('Creating folder %s for current backup' % self.current_folder)
+            os.mkdir(self.current_folder)
+
+        self.dump_database()
 
         self.log.info('Compressing all to file')
-        compress(current_folder, output_tarfile, b_compress_log_f, self.log)
-        b_compress_log_f.close()
+        compress(self.current_folder, self.output_tarfile, self.b_compress_log_f, self.log)
+        self.b_compress_log_f.close()
 
         self.log.info('Removing temporary files')
-        shutil.rmtree(current_folder)
-        shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
-        self.log.info('Uploading to ftp server')
-        upload_files([output_tarfile], self.cfg, self.log)
-        self.log.info('Completed')
+        shutil.rmtree(self.current_folder)
+
+        self.upload()
+
         self.file_handler.close()
         log_info = open(self.log_filename).read()
         send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
@@ -177,6 +189,7 @@ class Backuper(object):
         handler.setFormatter(formatter)
         handler.setLevel(logging.INFO)
         self.log.addHandler(self.file_handler)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
