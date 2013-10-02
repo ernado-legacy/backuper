@@ -167,6 +167,7 @@ if __name__ == '__main__':
         print 'Usage: backuper.py <project_name> backup <?m/d>'
         print 'or: backuper.py <project_name> restore <dd.mm(?.yy)>'
     generate_pgpass()
+    print sys.argv
     project = sys.argv[1]
     b_mode = sys.argv[2]
     if b_mode == 'backup':
