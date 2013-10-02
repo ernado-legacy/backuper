@@ -4,6 +4,7 @@ import datetime
 import shutil
 import logging
 import codecs
+import sys
 
 from errors import BackupException, ProjectException
 from config import get_config
@@ -162,6 +163,17 @@ class Backuper(object):
         self.log.addHandler(self.file_handler)
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print 'Usage: backuper.py <project_name> backup <?m/d>'
+        print 'or: backuper.py <project_name> restore <dd.mm(?.yy)>'
     generate_pgpass()
-    for project in ['machines', 'store']:
-        Backuper(project).backup()
+    project = sys.argv[1]
+    b_mode = sys.argv[2]
+    if b_mode == 'backup':
+        b_type = None
+        if len(sys.argv) > 3:
+            b_type = sys.argv[3]
+        b = Backuper(project, b_type)
+        b.backup()
+    else:
+        print 'Not implemented'
