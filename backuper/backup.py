@@ -103,6 +103,7 @@ class Backuper(object):
         b_folder = self.cfg.get('backuper', 'backups')
         b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
         b_compress_log_f = codecs.open(b_compress_log, 'w', 'utf-8')
+        print b_compress_log
 
         if not os.path.exists(b_folder):
             self.log.info('Creating folder %s for all backups' % b_folder)
