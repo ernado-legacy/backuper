@@ -137,7 +137,7 @@ class Backuper(object):
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         self.log.info('Completed')
         log_info = open(self.log_filename).read()
-        send('Completed: %s' % self.project.title, log_info, cfg=self.cfg, files=[b_compress_log])
+        send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log])
 
     def initiate_loggers(self):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
