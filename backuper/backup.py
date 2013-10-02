@@ -149,11 +149,10 @@ class Backuper(object):
         self.log.info('Uploading to ftp server')
         upload_files([output_tarfile], self.cfg, self.log)
         self.log.info('Completed')
-        self.log.handlers = []
         self.file_handler.close()
         log_info = open(self.log_filename).read()
         send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
-        exit(0)
+        self.log.handlers = []
 
     def initiate_loggers(self):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
