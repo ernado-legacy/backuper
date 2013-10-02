@@ -25,4 +25,14 @@ Quick start
 
    adduser backuper sudo
    chgrp -R sudo <folder>
-   ...
+
+4. Copy  config to backuper user folder and set up permissions::
+
+    cp backuper/backuper/backuper.conf ~
+    chmod o-rwx,g-rwx ~/backuper.conf
+
+5. Create .pgpass file and set up permissions::
+
+   touch ~/.pgpass
+   chmod o-rwx,g-rwx ~/.pgpass
+
