@@ -94,6 +94,7 @@ class Backuper(object):
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
         self.b_index = get_current_index(self.project.title)
         self.log_filename = '%s-backup.log.txt' % self.b_index
+        open(self.log_filename, 'w').close()
         self.initiate_loggers()
 
     def backup(self):
@@ -139,12 +140,8 @@ class Backuper(object):
         send('Completed: %s' % self.project.title, log_info, cfg=self.cfg, files=[b_compress_log])
 
     def initiate_loggers(self):
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
-        stream_handler.setFormatter(formatter)
         self.log.setLevel(logging.INFO)
-        #self.log.addHandler(stream_handler)
         handler = logging.FileHandler(self.log_filename)
         handler.setFormatter(formatter)
         handler.setLevel(logging.INFO)
