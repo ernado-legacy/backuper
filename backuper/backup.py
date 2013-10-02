@@ -179,10 +179,10 @@ if __name__ == '__main__':
             for t in (TYPES.monthly, TYPES.daily):
                 if t[0] == b_type[0] or t == b_type:
                     b_type = t
-        if b_type is not None and b_type not in (TYPES.monthly, TYPES.daily):
-            b = Backuper(project, b_type)
-            b.backup()
-        else:
-            print 'Incorrect backup type'
+            if b_type not in (TYPES.monthly, TYPES.daily):
+                print 'Incorrect backup type'
+                exit(-1)
+        b = Backuper(project, b_type)
+        b.backup()
     else:
         print 'Not implemented'
