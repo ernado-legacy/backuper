@@ -8,8 +8,9 @@ from errors import BackupException
 NAME = 'backuper'
 
 
-def get_config():
-    logger = log.get(__name__)
+def get_config(logger=None):
+    if logger is None:
+        logger = log.get(__name__)
     logger.info('Getting config')
     config = ConfigParser.ConfigParser()
     for loc in os.path.expanduser("~"), "/etc/%s" % NAME, os.environ.get("%s_CONF" % NAME.upper()):

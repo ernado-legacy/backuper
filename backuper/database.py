@@ -8,14 +8,14 @@ import subprocess
 from ConfigParser import ConfigParser, NoSectionError
 
 from config import get_config
-import log
+import log as _log
 
-logger = log.get(__name__)
+
 password_string = 'localhost:5432:db_{name}:pg_{name}:{key}\n'
 command_string = 'pg_dump -U pg_{name} db_{name}'
 
 
-def dump(project_name, dump_file=None):
+def dump(project_name, dump_file=None, log=None):
     """
     Dump database of project
     @type dump_file: FileIO
@@ -23,8 +23,9 @@ def dump(project_name, dump_file=None):
     @param dump_file: output file
     @type project_name: str
     """
-    logger.info('Dumping %s database' % project_name)
-
+    if log is None:
+        log = _log.get(__name__)
+    log.info('Dumping %s database' % project_name)
     command = command_string.format(name=project_name)
     if dump_file is None:
         dump_file = open('db_%s.dump' % project_name, 'w')
@@ -32,17 +33,19 @@ def dump(project_name, dump_file=None):
     p.wait()
     dump_file.close()
 
-    logger.info('Dump for %s finished' % project_name)
+    log.info('Dump for %s finished' % project_name)
 
 
-def dump_all(dump_file=None):
+def dump_all(dump_file=None, log=None):
     """
     Full dump
     @param dump_file: output file
     """
+    if log is None:
+        log = _log.get(__name__)
 
     command = 'pg_dumpall'
-    logger.info('Starting full dump')
+    log.info('Starting full dump')
 
     if dump_file is None:
         dump_file = open('full.dump', 'w')
@@ -50,16 +53,18 @@ def dump_all(dump_file=None):
     p.wait()
     dump_file.close()
 
-    logger.info('Full dump finished')
+    log.info('Full dump finished')
 
 
-def generate_pgpass():
+def generate_pgpass(log=None):
     """
     Generates a gpass file
     @return: dictionary of database passwords
     """
+    if log is None:
+        log = _log.get(__name__)
 
-    logger.info('Generating pgpass file')
+    log.info('Generating pgpass file')
     config = get_config()
     passwords = {}
     projects_folder = config.get('backuper', 'projects')
@@ -72,22 +77,21 @@ def generate_pgpass():
         try:
             parser.read(os.path.join(projects_folder, project_name, 'conf', 'backuper.conf'))
             password = parser.get('backuper', 'password')
-            logger.info('Settings for project %s loaded' % project_name)
+            log.info('Settings for project %s loaded' % project_name)
             passwords.update({project_name: password})
         except (NoSectionError, IOError), e:
-            logger.warning('Failed to process %s: %s' % (project_name, e))
+            log.warning('Failed to process %s: %s' % (project_name, e))
             continue
         pgpass_strings.append(password_string.format(key=password, name=project_name))
 
     with open(os.path.join(user_root, '.pgpass'), 'w') as pgpass_file:
         pgpass_file.writelines(pgpass_strings)
 
-    logger.info('Pgpass file generated. Processed projects: %s' % len(pgpass_strings))
+    log.info('Pgpass file generated. Processed projects: %s' % len(pgpass_strings))
     return passwords
 
 
 if __name__ == '__main__':
-    logger = log.get(__name__)
     for project in generate_pgpass():
         dump(project)
     dump_all()

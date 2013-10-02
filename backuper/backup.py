@@ -2,6 +2,7 @@
 import os
 import datetime
 import shutil
+import logging
 
 from errors import BackupException, ProjectException
 from config import get_config
@@ -77,7 +78,7 @@ class Project(object):
 class Backuper(object):
     def __init__(self, project_title, b_type=None):
         self.log = log.get(__name__)
-        self.cfg = get_config()
+        self.cfg = get_config(self.log)
 
         if b_type is None:
             b_type = get_backup_type()
@@ -91,20 +92,22 @@ class Backuper(object):
             self.project = Project(project_title, projects_folder)
         except ProjectException as e:
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
+        self.b_index = get_current_index(self.project.title)
+        self.initiate_loggers()
 
     def backup(self):
         b_time = datetime.datetime.now()
         self.log.info('Starting %s backup of %s' % (self.b_type, self.project))
-        b_index = get_current_index(self.project.title)
+
         b_folder = self.cfg.get('backuper', 'backups')
-        b_compress_log = os.path.join(b_folder, '%s-compress.log' % b_index)
+        b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
 
         if not os.path.exists(b_folder):
             self.log.info('Creating folder %s for all backups' % b_folder)
             os.mkdir(b_folder)
 
-        current_folder = os.path.join(b_folder, b_index)
-        output_tarfile = os.path.join(b_folder, '%s.tar' % b_index)
+        current_folder = os.path.join(b_folder, self.b_index)
+        output_tarfile = os.path.join(b_folder, '%s.tar' % self.b_index)
         output_media_tarfile = os.path.join(current_folder, 'media.tar')
 
         if not os.path.exists(current_folder):
@@ -131,6 +134,19 @@ class Backuper(object):
         self.log.info('Reporting')
         send('Completed: %s' % self.project.title, 'Hello World', cfg=self.cfg, files=[b_compress_log])
         self.log.info('Completed')
+
+    def initiate_loggers(self):
+        __ch = logging.StreamHandler()
+        __ch.setLevel(logging.INFO)
+        __formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
+        __ch.setFormatter(__formatter)
+        self.log.setLevel(logging.INFO)
+        self.log.addHandler(__ch)
+        handler = logging.FileHandler('%s-backup.log.txt' % self.b_index)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
+        handler.setFormatter(formatter)
+        handler.setLevel(logging.INFO)
+        self.log.addHandler(handler)
 
 if __name__ == '__main__':
     generate_pgpass()
