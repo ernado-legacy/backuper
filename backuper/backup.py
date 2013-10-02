@@ -8,6 +8,7 @@ import codecs
 from errors import BackupException, ProjectException
 from config import get_config
 from database import dump, dump_all, generate_pgpass
+from uploader import upload_files
 from archivator import incremental_compress, compress, compress_file
 from reports import send
 
@@ -137,6 +138,8 @@ class Backuper(object):
         self.log.info('Removing temporary files')
         shutil.rmtree(current_folder)
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
+        self.log.info('Uploading to ftp server')
+        upload_files([output_tarfile], self.cfg, self.log)
         self.log.info('Completed')
         self.log.handlers = []
         self.file_handler.close()

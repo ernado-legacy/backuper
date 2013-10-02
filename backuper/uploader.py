@@ -5,17 +5,15 @@ from ftplib import FTP
 from ftplib import all_errors as ftp_all_errors
 
 import errors
-import log
 from files import format_size
 
 
-def upload_files(file_list, cfg):
+def upload_files(file_list, cfg, logger):
     """
     Upload list of files to pre-configurated server
     @param file_list: upload file list with full paths
     @param cfg: ParseConfig object
     """
-    logger = log.get(__name__)
     start_time = datetime.now()
     upload_list = zip(file_list, map(lambda x: os.path.basename(x), file_list))
     logger.info('Uploading files: %s' ' '.join(upload_list.values()))
