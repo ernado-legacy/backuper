@@ -95,7 +95,8 @@ class Backuper(object):
         except ProjectException as e:
             raise BackupException('Unable to open project %s: %s' % (project_title, e))
         self.b_index = get_current_index(self.project.title)
-        self.log_filename = '%s-backup.log.txt' % self.b_index
+        b_folder = self.cfg.get('backuper', 'backups')
+        self.log_filename = os.path.join(b_folder, '%s-backup.log.txt' % self.b_index)
         open(self.log_filename, 'w').close()
         self.initiate_loggers()
 
