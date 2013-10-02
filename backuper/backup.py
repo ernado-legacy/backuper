@@ -129,7 +129,7 @@ class Backuper(object):
         self.log.info('Incremental media files archive size: %s' % get_size(output_media_tarfile))
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
 
-    def dump_database(self):
+    def dump_compress_database(self):
         dump_file_path = os.path.join(self.current_folder, '%s.dump' % self.project)
         dump(self.project.title, open(dump_file_path, 'w'), self.log)
         self.log.info('Dumped to %s' % get_size(dump_file_path))
@@ -145,13 +145,17 @@ class Backuper(object):
         upload_files([self.output_tarfile], self.cfg, self.log)
         self.log.info('Completed')
 
-    def backup(self):
-        self.log.info('Starting %s backup of %s' % (self.b_type, self.project))
+    def finalize(self, c_log):
+        self.file_handler.close()
+        log_info = open(self.log_filename).read()
+        send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[c_log], logger=self.log)
 
-        b_folder = self.cfg.get('backuper', 'backups')
-        b_compress_log = os.path.join(b_folder, '%s-compress.txt' % self.b_index)
-        self.b_compress_log_f = codecs.open(b_compress_log, 'w', 'utf-8')
+    def clean_up(self):
+        self.log.info('Removing temporary files')
+        shutil.rmtree(self.current_folder)
+        self.b_compress_log_f.close()
 
+    def create_folders(self, b_folder):
         if not os.path.exists(b_folder):
             self.log.info('Creating folder %s for all backups' % b_folder)
             os.mkdir(b_folder)
@@ -163,21 +167,24 @@ class Backuper(object):
             self.log.info('Creating folder %s for current backup' % self.current_folder)
             os.mkdir(self.current_folder)
 
-        self.dump_database()
-
+    def compress_all(self):
         self.log.info('Compressing all to file')
         compress(self.current_folder, self.output_tarfile, self.b_compress_log_f, self.log)
-        self.b_compress_log_f.close()
 
-        self.log.info('Removing temporary files')
-        shutil.rmtree(self.current_folder)
+    def backup(self):
+        self.log.info('Starting %s backup of %s' % (self.b_type, self.project))
 
+        backup_folder = self.cfg.get('backuper', 'backups')
+        compress_log_filename = os.path.join(backup_folder, '%s-compress.txt' % self.b_index)
+        self.b_compress_log_f = codecs.open(compress_log_filename, 'w', 'utf-8')
+
+        self.create_folders(backup_folder)
+        self.dump_compress_database()
+        self.compress_media()
+        self.compress_all()
+        self.clean_up()
         self.upload()
-
-        self.file_handler.close()
-        log_info = open(self.log_filename).read()
-        send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
-        self.log.handlers = []
+        self.finalize(compress_log_filename)
 
     def initiate_loggers(self):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')
