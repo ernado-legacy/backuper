@@ -72,6 +72,7 @@ def incremental_compress(input_folder, output_file, incremental_list_file, log_f
 
     start_time = datetime.now()
     logger.info('Archiving %s to %s' % (input_folder, output_file))
+    logger.info('Incremental file: %s' % incremental_list_file)
     result = call(tar_call_arguments + ['--listed-incremental=%s' % incremental_list_file,
                                         '--file=%s' % output_file,
                                         input_folder],
