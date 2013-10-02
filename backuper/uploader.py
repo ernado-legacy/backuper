@@ -32,7 +32,10 @@ def upload_files(file_list, cfg, logger):
         logger.info('Connected, starting upload')
         map(lambda filename: ftp.storbinary('STOR %s' % uploads[filename], open(filename)), uploads.keys())
         elapsed_seconds = (datetime.now() - start_time).seconds
-        logger.info('Uploaded by %s seconds, speed: %s/s' % (elapsed_seconds, format_size(total_size/elapsed_seconds)))
+        if elapsed_seconds != 0:
+            logger.info('Uploaded by %s seconds, speed: %s/s' % (elapsed_seconds, format_size(total_size/elapsed_seconds)))
+        else:
+            logger.info('Uploaded by zero seconds')
         ftp.close()
     except ftp_all_errors as e:
         logger.critical('Unable to complete ftp upload: %s' % e)
