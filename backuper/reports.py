@@ -49,10 +49,10 @@ def send(subject, text, files=None, cfg=None):
     @type subject: str
     """
     logger = log.get(__name__)
-    assert type(files) == list
 
     if files is None:
         files = []
+    assert type(files) == list
 
     logger.debug('Processing report, subject: %s, text length: %s, files: %s' % (subject, len(text), len(files)))
 
