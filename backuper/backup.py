@@ -118,18 +118,19 @@ class Backuper(object):
             os.mkdir(current_folder)
 
         dump_file_path = os.path.join(current_folder, '%s.dump' % self.project)
-        dump(self.project.title, open(dump_file_path, 'w'))
+        dump(self.project.title, open(dump_file_path, 'w'), self.log)
 
         self.log.info('Compressing database')
-        compress_file(dump_file_path, '%s.tar.gz' % dump_file_path)
+        compress_file(dump_file_path, '%s.tar.gz' % dump_file_path, self.log)
         os.remove(dump_file_path)
 
         incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
         incremental_file = os.path.join(b_folder, incremental_file)
-        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file, b_compress_log_f)
+        incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file,
+                             b_compress_log_f, self.log)
 
         self.log.info('Compressing all to file')
-        compress(current_folder, output_tarfile, b_compress_log_f)
+        compress(current_folder, output_tarfile, b_compress_log_f, self.log)
         b_compress_log_f.close()
 
         self.log.info('Removing temporary files')
@@ -137,7 +138,7 @@ class Backuper(object):
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         self.log.info('Completed')
         log_info = open(self.log_filename).read()
-        send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log])
+        send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
 
     def initiate_loggers(self):
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', r'%d.%m.%y %H:%M:%S')

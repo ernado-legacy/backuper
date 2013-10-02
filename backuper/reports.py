@@ -38,7 +38,7 @@ def _format_message(subject, text, files, logger, cfg):
     return msg
 
 
-def send(subject, text, files=None, cfg=None):
+def send(subject, text, files=None, cfg=None, logger=None):
     """
     Sends mail
     @type text: str
@@ -48,7 +48,8 @@ def send(subject, text, files=None, cfg=None):
     @param cfg: ParseConfig object
     @type subject: str
     """
-    logger = log.get(__name__)
+    if logger is None:
+        logger = log.get(__name__)
 
     if files is None:
         files = []
