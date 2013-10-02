@@ -139,8 +139,11 @@ class Backuper(object):
         self.log.info('Compressed to %s' % get_size(dump_tarfile_path))
 
         self.log.info('Collecting media files')
-        incremental_file = '%s.new.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
-        incremental_file = os.path.join(b_folder, incremental_file)
+        old_incremental_file = '%s.inc' % get_backup_index(self.project.title, 1, b_time.month, b_time.year)
+        old_incremental_file = os.path.join(b_folder, old_incremental_file)
+        incremental_file = old_incremental_file.replace('.inc', '.new.inc')
+
+        shutil.copy(old_incremental_file, incremental_file)
         incremental_compress(self.project.media_folder, output_media_tarfile, incremental_file,
                              b_compress_log_f, self.log)
         self.log.info('Incremental media files archive size: %s' % get_size(output_media_tarfile))
