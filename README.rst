@@ -23,8 +23,8 @@ Quick start
 
 3. Grant read/write rights on project and backup folder::
 
-   adduser backuper sudo
-   chgrp -R sudo <folder>
+    adduser backuper sudo
+    chgrp -R sudo <folder>
 
 4. Copy  config to backuper user folder and set up permissions::
 
@@ -33,6 +33,6 @@ Quick start
 
 5. Create .pgpass file and set up permissions::
 
-   touch ~/.pgpass
-   chmod o-rwx,g-rwx ~/.pgpass
+    touch ~/.pgpass
+    chmod o-rwx,g-rwx ~/.pgpass
 
