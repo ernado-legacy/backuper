@@ -77,7 +77,7 @@ class Project(object):
 
 class Backuper(object):
     def __init__(self, project_title, b_type=None):
-        self.log = logging.logger
+        self.log = logging.getLogger(__name__)
         self.cfg = get_config(self.log)
         self.file_handler = None
 
