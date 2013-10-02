@@ -51,7 +51,7 @@ def compress(input_folder, output_file, log_file):
     logger.info('Folder %s compressed to file %s' % (input_folder, output_file))
 
 
-def incremental_compress(input_folder, output_file, log_file, incremental_list_file):
+def incremental_compress(input_folder, output_file, incremental_list_file, log_file):
     """
     Incrementally compress folder
     @type incremental_list_file: str
