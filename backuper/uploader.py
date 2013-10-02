@@ -15,12 +15,12 @@ def upload_files(file_list, cfg, logger):
     @param cfg: ParseConfig object
     """
     start_time = datetime.now()
-    upload_list = zip(file_list, map(lambda x: os.path.basename(x), file_list))
-    print upload_list, file_list
-    logger.info('Uploading files: %s' ' '.join(upload_list.values()))
+    uploads = dict(zip(file_list, map(lambda x: os.path.basename(x), file_list)))
+    print uploads, file_list
+    logger.info('Uploading files: %s' ' '.join(uploads.values()))
     total_size = 0
     # Checking files and counting
-    for f in upload_list:
+    for f in uploads:
         if not os.path.isfile(f):
             logger.critical('Unable to find file %s, unable to complete backup' % f)
             raise errors.BackupException('File not found: %s' % f)
@@ -30,7 +30,7 @@ def upload_files(file_list, cfg, logger):
         logger.info('Connecting to %s' % cfg.get('ftp', 'host'))
         ftp = FTP(cfg.get('ftp', 'host'), cfg.get('ftp', 'user'), cfg.get('ftp', 'password'))
         logger.info('Connected, starting upload')
-        map(lambda filename: ftp.storbinary('STOR %s' % upload_list[filename], open(filename)), upload_list.keys())
+        map(lambda filename: ftp.storbinary('STOR %s' % uploads[filename], open(filename)), uploads.keys())
         elapsed_seconds = (datetime.now() - start_time).second
         logger.info('Uploaded by %s seconds, speed: %s/s' % (elapsed_seconds, format_size(total_size/elapsed_seconds)))
         ftp.close()
