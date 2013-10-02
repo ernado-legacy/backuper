@@ -5,7 +5,7 @@ import shutil
 
 from errors import BackupException, ProjectException
 from config import get_config
-from database import dump
+from database import dump, dump_all, generate_pgpass
 from archivator import incremental_compress, compress, compress_file
 import log
 
@@ -133,5 +133,5 @@ class Backuper(object):
         #os.remove(incremental_file)
         self._logger.info('Completed')
 if __name__ == '__main__':
-    for project in ['machines', 'store', 'discover']:
+    for project in generate_pgpass():
         Backuper(project).backup()
