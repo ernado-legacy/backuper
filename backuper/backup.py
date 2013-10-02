@@ -138,6 +138,7 @@ class Backuper(object):
         shutil.rmtree(current_folder)
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         self.log.info('Completed')
+        self.log.handlers = []
         self.file_handler.close()
         log_info = open(self.log_filename).read()
         send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
