@@ -77,8 +77,9 @@ class Project(object):
 
 class Backuper(object):
     def __init__(self, project_title, b_type=None):
-        self.log = logging.getLogger(__name__)
+        self.log = logging.logger
         self.cfg = get_config(self.log)
+        self.file_handler = None
 
         if b_type is None:
             b_type = get_backup_type()
@@ -137,6 +138,7 @@ class Backuper(object):
         shutil.rmtree(current_folder)
         shutil.move(incremental_file, incremental_file.replace('.new.inc', '.inc'))
         self.log.info('Completed')
+        self.file_handler.close()
         log_info = open(self.log_filename).read()
         send('backup %s' % self.b_index, log_info, cfg=self.cfg, files=[b_compress_log], logger=self.log)
 
@@ -146,10 +148,10 @@ class Backuper(object):
         self.log.setLevel(logging.INFO)
         handler.setFormatter(formatter)
         self.log.addHandler(handler)
-        handler = logging.FileHandler(self.log_filename)
+        self.file_handler = logging.FileHandler(self.log_filename)
         handler.setFormatter(formatter)
         handler.setLevel(logging.INFO)
-        self.log.addHandler(handler)
+        self.log.addHandler(self.file_handler)
 
 if __name__ == '__main__':
     generate_pgpass()
