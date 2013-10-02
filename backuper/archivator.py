@@ -9,6 +9,11 @@ import log
 import errors
 
 
+tar_call_arguments = ['tar', '--create', '--verbose', '--gzip',
+                      '--preserve-permissions', '--ignore-failed-read',
+                      '--one-file-system', '--recursion', '--totals']
+
+
 def compress_file(input_file, output_file, logger=None):
     """
     Compressing folder to file
@@ -37,11 +42,9 @@ def compress(input_folder, output_file, log_file, logger=None):
     """
     if logger is None:
         logger = log.get(__name__)
+
     start_time = datetime.now()
     logger.info('Starting compression of the folder %s' % input_folder)
-    tar_call_arguments = ['tar', '--create', '--verbose',
-                          '--preserve-permissions', '--ignore-failed-read',
-                          '--totals']
 
     logger.info('Archiving to %s' % output_file)
     result = call(tar_call_arguments + ['--file=%s' % output_file, input_folder], stdout=log_file, stderr=log_file)
@@ -66,16 +69,13 @@ def incremental_compress(input_folder, output_file, incremental_list_file, log_f
     """
     if logger is None:
         logger = log.get(__name__)
-    tar_call_arguments = ['tar', '--create', '--verbose',
-                          '--preserve-permissions', '--ignore-failed-read',
-                          '--recursion', '--totals']
 
     start_time = datetime.now()
-    logger.info('Archiving to %s' % output_file)
-
+    logger.info('Archiving %s to %s' % (input_folder, output_file))
     result = call(tar_call_arguments + ['--listed-incremental=%s' % incremental_list_file,
-                                        '--file=%s' % output_file, input_folder],
-                  stdout=log_file,
+                                        '--file=%s' % output_file,
+                                        input_folder],
+                  tdout=log_file,
                   stderr=log_file)
     if result == 0:
         logger.info('Archiving completed by %s seconds' % (datetime.now() - start_time).seconds)
