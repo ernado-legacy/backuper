@@ -7,6 +7,7 @@ from subprocess import call
 import log
 import errors
 
+
 def compress_file(input_file, output_file):
     """
     Compressing folder to file
@@ -42,6 +43,7 @@ def compress(input_folder, output_file, zip=False):
         mode = 'w:gz'
     tar = tarfile.open(output_file, mode)
     for name in os.listdir(input_folder):
+        logger.info('Archiving file %s' % name)
         if os.path.isfile(name):
             tar.add(name)
     tar.close()
