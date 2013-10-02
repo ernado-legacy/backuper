@@ -16,7 +16,6 @@ def upload_files(file_list, cfg, logger):
     """
     start_time = datetime.now()
     uploads = dict(zip(file_list, map(lambda x: os.path.basename(x), file_list)))
-    print uploads, file_list
     logger.info('Uploading files: %s' ' '.join(uploads.values()))
     total_size = 0
     # Checking files and counting
